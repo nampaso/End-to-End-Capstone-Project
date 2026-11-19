@@ -1,0 +1,20 @@
+# Data Documentation & Ethics Statement
+
+## Data Source, Licence & Date Accessed
+- **Source:** Duka Electronics H1 2026 POS, CRM, and Product Catalog dataset generated deterministically by `data/generate_data.py` (seed `42`).
+- **Licence:** Creative Commons Attribution 4.0 International (CC BY 4.0).
+- **Date Accessed:** 2026-11-19.
+- **File Size & Download/Generation:** Each generated CSV is under 2 MB (well below the 50 MB limit). Run `python data/generate_data.py` from the repository root to generate `data/raw_transactions.csv`, `data/raw_customers.csv`, and `data/raw_products.csv`.
+
+## Table Grains & Fields Used
+1. `data/raw_transactions.csv` — **Grain:** One row per order transaction (`transaction_id`).
+   - Fields: `transaction_id`, `order_date`, `branch`, `customer_id`, `product_id`, `quantity`, `unit_price_kes`, `discount_pct`, `payment_method`, `order_status`.
+2. `data/raw_customers.csv` — **Grain:** One row per customer (`customer_id`).
+   - Fields: `customer_id`, `full_name`, `email`, `phone_number`, `national_id`, `city`, `signup_date`, `loyalty_tier`.
+3. `data/raw_products.csv` — **Grain:** One row per product SKU (`product_id`).
+   - Fields: `product_id`, `product_name`, `category`, `unit_cost_kes`, `list_price_kes`.
+
+## Ethics and Privacy Statement (Section 4.13)
+- **Personal & Sensitive Fields:** Direct personal identifiers in `raw_customers.csv` include `full_name`, `email`, `phone_number`, and `national_id` (sensitive government identifier). Exact `signup_date` combined with `city` acts as a quasi-identifier.
+- **What Was Removed or Pseudonymised:** `full_name`, `email`, `phone_number`, and `national_id` are permanently dropped during cleaning in `src/cleaning.py` before writing to SQLite or analysis outputs. `customer_id` is pseudonymised using a salted SHA-256 hash (`cust_<8-hex-chars>`), and `signup_date` is generalized to `signup_month` (`YYYY-MM`).
+- **How Published Outputs Avoid Identifying Individuals:** All charts, SQL query outputs, `stakeholder_summary.xlsx`, `executive_summary.pdf`, and Looker Studio visuals present only aggregated group metrics with no individual customer rows, raw identifiers, or small-cell disclosures.
