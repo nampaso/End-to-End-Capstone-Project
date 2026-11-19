@@ -1,0 +1,22 @@
+import sqlite3
+import sys
+import pandas as pd
+
+sys.path.append("..")
+from src.cleaning import audit_data_quality, clean_data
+
+raw_tx = pd.read_csv("../data/raw_transactions.csv")
+raw_cust = pd.read_csv("../data/raw_customers.csv")
+raw_prod = pd.read_csv("../data/raw_products.csv")
+
+audit_df = audit_data_quality(raw_tx, raw_cust, raw_prod)
+display(audit_df)
+
+clean_tables, cleaning_log = clean_data(raw_tx, raw_cust, raw_prod)
+display(cleaning_log)
+
+with sqlite3.connect("../data/duka_electronics.db") as conn:
+    for name, table_df in clean_tables.items():
+        table_df.to_sql(name, conn, if_exists="replace", index=False)
+        count = pd.read_sql(f"SELECT COUNT(*) AS rows_loaded FROM {name}", conn)["rows_loaded"].iloc[0]
+        print(f"{name}: {count} rows loaded into SQLite")
